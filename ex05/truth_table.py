@@ -5,7 +5,7 @@ from itertools import product
 
 def extract_variables(formula: str):
     """
-    Extract unique variables name from formula
+    Extract unique variables name(symbol) from formula
     """
     variable_set = set()
 
@@ -26,26 +26,26 @@ def evaluate_tree(node: Node, values: dict) -> bool:
         return values[node.value]
 
     # Unary operator (negation)
-    if node.value == '!':
+    if node.value == "!":
         return not evaluate_tree(node.left, values)    # negate the result from eval
 
     # Binary operators (&,|,^,=,>)
     left_val = evaluate_tree(node.left, values)
     right_val = evaluate_tree(node.right, values)
 
-    if node.value == '&':
+    if node.value == "&":
         return left_val and right_val
 
-    if node.value == '|':                       # or - True if any one is True or all is True - (0,1),(1,0),(1,1)
+    if node.value == "|":                       # or - True if any one is True or all is True - (0,1),(1,0),(1,1)
         return left_val or right_val
 
-    if node.value == '^':                       # xor - True if exactly one is True - (1,1 = 0), (1,0 = 1), (0,1 =1)
+    if node.value == "^":                       # xor - True if exactly one is True - (1,1 = 0), (1,0 = 1), (0,1 =1)
         return left_val ^ right_val
 
-    if node.value == '>':                       # implication - A > B  ≡  ¬A ∨ B = ((not A) or B) "If it rains(A), then the ground is wet(B)."
+    if node.value == ">":                       # implication - A > B  ≡  ¬A ∨ B = ((not A) or B) "If it rains(A), then the ground is wet(B)."
         return (not left_val) or right_val
 
-    if node.value == '=':
+    if node.value == "=":
         return left_val == right_val
 
     raise ValueError(f"unknown operator: {node.value}")
@@ -57,7 +57,7 @@ def build_tree(formula: str) -> Node:
     written in Reverse Polish Notation (RPN).
     """
     symbols = list(string.ascii_uppercase)
-    binary_opr = {'&', '|', '^', '>', '='}                  #set
+    binary_opr = {"&", "|", "^", ">", "="}                  #set
     stack = []
 
     for token in formula:
@@ -65,8 +65,8 @@ def build_tree(formula: str) -> Node:
         if token in (symbols):                             # symbols A-Z
             stack.append(Node(token))
 
-        elif token == '!':                                  # unary operator
-            if len(stack) == 0:                             # Because '!' needs to stick to one node of literal, !0, !1
+        elif token == "!":                                  # unary operator
+            if len(stack) == 0:                             # invalid, because "!" needs to stick to one node of literal, !0, !1
                 raise ValueError("invalid formula")
 
             child = stack.pop()

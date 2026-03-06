@@ -19,32 +19,32 @@ def evaluate_tree(node: Node) -> bool:
     """
 
     # Base case: literal (0, 1)
-    if node.value == '0':
+    if node.value == "0":
         return False
-    if node.value == '1':
+    if node.value == "1":
         return True
 
     # Unary operator (negation)
-    if node.value == '!':
+    if node.value == "!":
         return not evaluate_tree(node.left)    # negate the result from eval
 
     # Binary operators (&,|,^,=,>)
     left_val = evaluate_tree(node.left)
     right_val = evaluate_tree(node.right)
 
-    if node.value == '&':                       # and
+    if node.value == "&":                       # and
         return left_val and right_val
 
-    if node.value == '|':                       # or - True if any one is True or all is True - (0,1),(1,0),(1,1)
+    if node.value == "|":                       # or - True if any one is True or all is True - (0,1),(1,0),(1,1)
         return left_val or right_val
 
-    if node.value == '^':                       # xor - True if exactly one is True - (1,1 = 0), (1,0 = 1), (0,1 =1)
+    if node.value == "^":                       # xor - True if exactly one is True - (1,1 = 0), (1,0 = 1), (0,1 =1)
         return left_val ^ right_val
 
-    if node.value == '>':                       # implication - A > B  ≡  ¬A ∨ B = ((not A) or B) "If it rains(A), then the ground is wet(B)."
+    if node.value == ">":                       # implication - A > B  ≡  ¬A ∨ B = ((not A) or B) "If it rains(A), then the ground is wet(B)."
         return (not left_val) or right_val
 
-    if node.value == '=':                       # equivalence
+    if node.value == "=":                       # equivalence
         return left_val == right_val
 
     raise ValueError(f"unknown operator: {node.value}")
@@ -61,16 +61,16 @@ def build_tree(formula: str) -> Node:
     Build an expression tree from a propositional formula
     written in Reverse Polish Notation (RPN).
     """
-    binary_opr = {'&', '|', '^', '>', '='}
+    binary_opr = {"&", "|", "^", ">", "="}
     stack = []
 
     for token in formula:
 
-        if token in ('0', '1'):                             # Literal 0, 1
+        if token in ("0", "1"):                             # Literal 0, 1
             stack.append(Node(token))
 
-        elif token == '!':                                  # unary operator
-            if len(stack) == 0:                             # Because '!' needs to stick to one node of literal, !0, !1
+        elif token == "!":                                  # unary operator
+            if len(stack) == 0:                             # invalid, because "!" needs to stick to one node of literal, !0, !1
                 raise ValueError("Invalid formula")
 
             child = stack.pop()

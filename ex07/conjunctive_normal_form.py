@@ -17,7 +17,7 @@ def distributivity_to(node: Node) -> Node:
     """
 
     # Literal / negated literal
-    if node.value.isupper() or node.value == "!":
+    if node.value.isupper() or node.value == '!':
         return node
 
     # Recursively process children first
@@ -25,27 +25,27 @@ def distributivity_to(node: Node) -> Node:
     right = distributivity_to(node.right)
 
     # Apply distributivity only when node is |OR
-    if node.value == "|":
+    if node.value == '|':
 
         # A | (B & C)
-        if right.value == "&":
+        if right.value == '&':
             new_left = distributivity_to(
-                Node("|", left, right.left)
+                Node('|', left, right.left)
             )
             new_right = distributivity_to(
-                Node("|", left, right.right)
+                Node('|', left, right.right)
             )
-            return Node("&", new_left, new_right)
+            return Node('&', new_left, new_right)
 
         # (A & B) | C
-        if left.value == "&":
+        if left.value == '&':
             new_left = distributivity_to(
-                Node("|", left.left, right)
+                Node('|', left.left, right)
             )
             new_right = distributivity_to(
-                Node("|", left.right, right)
+                Node('|', left.right, right)
             )
-            return Node("&", new_left, new_right)
+            return Node('&', new_left, new_right)
 
     return Node(node.value, left, right)
 

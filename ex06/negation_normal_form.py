@@ -1,4 +1,4 @@
-from truth_table import extract_variables, build_tree
+from truth_table import build_tree
 from node import Node
 
 
@@ -10,19 +10,19 @@ def to_rpn(node: Node) -> str:
     if node is None:
         return ""
 
-    if node.value == '!':
-        return to_rpn(node.left) + '!'
+    if node.value == "!":
+        return to_rpn(node.left) + "!"
     
     if node.value.isupper():
         return node.value
 
-    # if operator &,|
+    # else if operator &,|
     return to_rpn(node.left) + to_rpn(node.right) + node.value
 
 
 def eliminate_imp_eq(node: Node) -> Node:
     """
-    Convert implication to simpler form - (A => B) <=> (¬A ∨ B)
+    Convert implication to simpler form - (A => B) <=> (¬A V B)
     Convert equivalence to simpler form - (A <=> B) <=> (A => B) ∧ (B => A)
     """
 
@@ -31,39 +31,32 @@ def eliminate_imp_eq(node: Node) -> Node:
         return node
 
     # Negation
-    if node.value == '!':
-        return Node('!', eliminate_imp_eq(node.left))
-
-    # Implication - (A => B) <=> (¬A ∨ B)
-    if node.value == '>':
-        
-        return Node('|',
-                    Node('!', eliminate_imp_eq(node.left)),
-                    eliminate_imp_eq(node.right))
+    if node.value == "!":
+        return Node("!", eliminate_imp_eq(node.left))
 
     # Equivalence - (A <=> B) <=> (A => B) ∧ (B => A)
-    if node.value == '=':
-        
-        left_imp = Node('>',
-                        eliminate_imp_eq(node.left),
-                        eliminate_imp_eq(node.right))
-        right_imp = Node('>',
-                         eliminate_imp_eq(node.right),
-                         eliminate_imp_eq(node.left))
-        return Node('&', left_imp, right_imp)
+    if node.value == "=":
+        left = eliminate_imp_eq(node.left)
+        right = eliminate_imp_eq(node.right)
 
+        new_node = Node("&", Node(">", left, right), Node(">", right, left))
+
+        return eliminate_imp_eq(new_node)
+
+    # Implication - (A => B) <=> (¬A ∨ B)
+    if node.value == ">":
+        return Node("|", Node("!", eliminate_imp_eq(node.left)), eliminate_imp_eq(node.right))
+    
     # &AND / |OR
-    return Node(node.value,
-                eliminate_imp_eq(node.left),
-                eliminate_imp_eq(node.right))
+    return Node(node.value, eliminate_imp_eq(node.left), eliminate_imp_eq(node.right))
 
 
 def push_negations(node: Node) -> Node:
     """
     Eliminate double negations - (¬¬A) <=> A
-    If start with negation check De Morgan’s laws
-        ¬(A ∨ B) <=> (¬A ∧ ¬B)
-        ¬(A ∧ B) <=> (¬A ∨ ¬B)
+    If start with negation check De Morgan's laws
+        ¬(A V B) <=> (¬A ∧ ¬B)
+        ¬(A ∧ B) <=> (¬A V ¬B)
     """
 
     # Literal Symbols
@@ -71,49 +64,45 @@ def push_negations(node: Node) -> Node:
         return node
 
     # Negation
-    if node.value == '!':
+    if node.value == "!":
         child = node.left
 
         # Double negation: ¬¬A <=> A
-        if child.value == '!':
+        if child.value == "!":
             return push_negations(child.left)
 
-        # De Morgan AND
-        if child.value == '&':
-            return Node('|',
-                        push_negations(Node('!', child.left)),
-                        push_negations(Node('!', child.right)))
+        # De Morgan &AND
+        if child.value == "&":
+            return Node("|", push_negations(Node("!", child.left)), push_negations(Node("!", child.right)))
 
-        # De Morgan OR
-        if child.value == '|':
-            return Node('&',
-                        push_negations(Node('!', child.left)),
-                        push_negations(Node('!', child.right)))
+        # De Morgan |OR
+        if child.value == "|":
+            return Node("&", push_negations(Node("!", child.left)), push_negations(Node("!", child.right)))
 
-        return Node('!', push_negations(child))
+        return Node("!", push_negations(child))
 
     # &AND / |OR
-    return Node(node.value,
-                push_negations(node.left),
-                push_negations(node.right))
+    return Node(node.value, push_negations(node.left), push_negations(node.right))
 
 
 '''
 negation normal form (NNF) 
 only uses the operators:
 ∧ (AND)
-∨ (OR)
+V (OR)
 ¬ (NOT)
 All NOTs are pushed all the way down to the literals
 No negation is allowed to wrap a compound expression
 '''
 def negation_normal_form(formula: str)-> str:
     """
-    
+    Build tree
+    Eliminate equivalence(<=>) from tree
+    Eliminate implication(=>) from tree
+    Convert tree to rpn
     """
     root = build_tree(formula)
-    root = eliminate_imp_eq(root) # convert (A <=> B) <=> ((A => B) ∧ (B => A))
-    root = eliminate_imp_eq(root) # convert (A => B) <=> (¬A ∨ B)
+    root = eliminate_imp_eq(root) # eliminate equivalence and implication
     root = push_negations(root)
 
     return to_rpn(root)
