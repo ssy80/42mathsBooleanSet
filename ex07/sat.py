@@ -1,17 +1,19 @@
 
 from truth_table import extract_variables, build_tree, evaluate_tree
-from negation_normal_form import push_negations, eliminate_imp_eq
-from node import Node
+from negation_normal_form import push_negations, eliminate_imp_eq, eliminate_xor
 from conjunctive_normal_form import distributivity_to
+from node import Node
 from itertools import product
 
 
 def sat(formula: str) -> bool:
     """
     Return True if the formula is satisfiable.
+    Satisfiability: checking whether a logical formula can become True for at least one assignment of variables
     """
     root = build_tree(formula)
     root = eliminate_imp_eq(root) # eliminate equivalence and implication
+    root = eliminate_xor(root)
     root = push_negations(root)    #NNF
     root = distributivity_to(root) #CNF
 

@@ -16,17 +16,17 @@ def to_rpn(node: Node) -> str:
     if node.value.isupper():
         return node.value
 
-    # else if operator &,|
+    #  if operator &,|
     return to_rpn(node.left) + to_rpn(node.right) + node.value
 
 
 def eliminate_imp_eq(node: Node) -> Node:
     """
-    Convert implication to simpler form - (A => B) <=> (¬A V B)
     Convert equivalence to simpler form - (A <=> B) <=> (A => B) ∧ (B => A)
+    Convert implication to simpler form - (A => B) <=> (¬A V B)
     """
 
-    # Literal Symbols
+    # Literal Symbols(A-Z)
     if node.value.isupper():
         return node
 
@@ -85,8 +85,32 @@ def push_negations(node: Node) -> Node:
     return Node(node.value, push_negations(node.left), push_negations(node.right))
 
 
+def eliminate_xor(node: Node) -> Node:
+    """
+    Convert XOR to &, |, ! only.
+    A ^ B <=> (A | B) & !(A & B)
+    """
+    if node.value.isupper():
+        return node
+
+    if node.value == "!":
+        return Node("!", eliminate_xor(node.left))
+
+    if node.value == "^":
+        left = eliminate_xor(node.left)
+        right = eliminate_xor(node.right)
+
+        return Node(
+            "&",
+            Node("|", left, right),
+            Node("!", Node("&", left, right)),
+        )
+
+    return Node(node.value, eliminate_xor(node.left), eliminate_xor(node.right))
+
+
 '''
-negation normal form (NNF) 
+Negation normal form (NNF) 
 only uses the operators:
 ∧ (AND)
 V (OR)
@@ -103,6 +127,7 @@ def negation_normal_form(formula: str)-> str:
     """
     root = build_tree(formula)
     root = eliminate_imp_eq(root) # eliminate equivalence and implication
+    root = eliminate_xor(root)
     root = push_negations(root)
 
     return to_rpn(root)
@@ -118,6 +143,11 @@ def main():
         print(negation_normal_form("AB>"))    #A!B|
         print(negation_normal_form("AB="))    #AB&A!B!&| or A!B|B!A|&
         print(negation_normal_form("AB|C&!")) #A!B!&C!|
+
+        print(negation_normal_form("AB!!|C&!")) #A!B!&C!|
+
+        print(negation_normal_form("AB!!^C&!")) #A!B!&AB&|C!|
+
     
     except Exception as e:
         print(f"Error: {str(e)}")

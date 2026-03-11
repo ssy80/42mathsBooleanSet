@@ -1,5 +1,5 @@
 from truth_table import extract_variables, build_tree
-from negation_normal_form import push_negations, eliminate_imp_eq, to_rpn
+from negation_normal_form import push_negations, eliminate_imp_eq, to_rpn, eliminate_xor
 from node import Node
 
 
@@ -52,15 +52,15 @@ def distributivity_to(node: Node) -> Node:
 
 '''
 It is an AND of OR-clauses - (clause1) ^ (clause2) ^ (clause3), no negation to (clause) only to literals
-e.g (A V B), (¬A V ¬C) ∧ (¬B V ¬C), (A V ¬B) ∧ (¬C V D V E)
+e.g (A V B), (¬A V ¬C) ∧ (¬B V ¬C), (A V ¬B) ∧ (¬C V D V E), (A V B V C)
 '''
 def conjunctive_normal_form(formula: str) -> str:
     """
     """
     root = build_tree(formula)
     root = eliminate_imp_eq(root) # eliminate equivalence and implication
+    root = eliminate_xor(root)
     root = push_negations(root)
-
     root = distributivity_to(root)
 
     return to_rpn(root)

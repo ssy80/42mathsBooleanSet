@@ -9,8 +9,10 @@ def print_tree(node: Node, indent=0):
 
 
 '''
+Proposition logic is a branch of logic that studies statements that are either true or false and how they can be combined using logical operators.
+A proposition is a statement that has a truth value
 If node is literal (base case) -> return value
-If unary -> evaluate child -> apply operator ! (negate)
+If unary! -> evaluate child -> apply operator ! (negate)
 If binary -> evaluate left & right -> apply operator to the left and right result
 '''
 def evaluate_tree(node: Node) -> bool:
@@ -69,28 +71,28 @@ def build_tree(formula: str) -> Node:
         if token in ("0", "1"):                             # Literal 0, 1
             stack.append(Node(token))
 
-        elif token == "!":                                  # unary operator
+        elif token == "!":                                  # unary operator !
             if len(stack) == 0:                             # invalid, because "!" needs to stick to one node of literal, !0, !1
-                raise ValueError("Invalid formula")
+                raise ValueError("invalid formula")
 
             child = stack.pop()
             stack.append(Node(token, left=child))
 
         elif token in binary_opr:                           # binary operators
             if len(stack) < 2:                              # must have at least 2 node in stack
-                raise ValueError("Invalid formula")
+                raise ValueError("invalid formula")
 
             right = stack.pop()
             left = stack.pop()
             stack.append(Node(token, left, right))
         
         else:
-            raise ValueError(f"Unknown token: {token}")
+            raise ValueError(f"unknown token: {token}")
 
     if len(stack) != 1:
-        raise ValueError("Invalid formula")
+        raise ValueError("invalid formula")
 
-    return stack[0]
+    return stack[0]             # root node
 
 
 def eval_formula(formula: str) -> bool:
@@ -115,7 +117,10 @@ def main():
         print(eval_formula("11>")) # true
         print(eval_formula("10=")) # false
         print(eval_formula("1011||=")) # true
+
+        print(eval_formula("1011||=@")) # error
         
+
     except Exception as e:
         print(f"Error: {str(e)}")
 
