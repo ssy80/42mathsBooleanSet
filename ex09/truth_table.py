@@ -25,7 +25,7 @@ def evaluate_tree(node: Node, values: dict) -> bool:
     if node.value.isupper():
         return values[node.value]
 
-    # Unary operator (negation)
+    # Unary operator (!negation)
     if node.value == "!":
         return not evaluate_tree(node.left, values)    # negate the result from eval
 
@@ -45,7 +45,7 @@ def evaluate_tree(node: Node, values: dict) -> bool:
     if node.value == ">":                       # implication - A > B  ≡  ¬A ∨ B = ((not A) or B) "If it rains(A), then the ground is wet(B)."
         return (not left_val) or right_val
 
-    if node.value == "=":
+    if node.value == "=":                       # if and only if 
         return left_val == right_val
 
     raise ValueError(f"unknown operator: {node.value}")
@@ -65,7 +65,7 @@ def build_tree(formula: str) -> Node:
         if token in (symbols):                             # symbols A-Z
             stack.append(Node(token))
 
-        elif token == "!":                                  # unary operator
+        elif token == "!":                                  # unary operator!
             if len(stack) == 0:                             # invalid, because "!" needs to stick to one node of literal, !0, !1
                 raise ValueError("invalid formula")
 
@@ -91,6 +91,9 @@ def build_tree(formula: str) -> Node:
 
 def print_truth_table(formula: str):
     """
+    A Truth Table is a table used in propositional logic to show all possible truth values (True or False) of a logical expression.
+    It lists every possible combination of truth values for the propositions and shows the result of the logical operation.
+
     Extract unique symbols from formula
     Build the expression tree
     Generate all combinations for the symbols 2^n
@@ -106,9 +109,10 @@ def print_truth_table(formula: str):
 
     # Generate all combinations
     for values_tuple in product([False, True], repeat=len(variables)):  # get all combinations of True, False for all variables z^len(variables)
+        #print(values_tuple)
         values = dict(zip(variables, values_tuple))                     # for each combinations(values_tuple), evaluate against the expression tree
+        #print(values)
         result = evaluate_tree(root, values)                            # to get result for all combinations.
-
         row = " | ".join(str(int(values[v])) for v in variables)
         print(f"{row} | {int(result)}")
 

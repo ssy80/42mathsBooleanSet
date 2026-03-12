@@ -11,6 +11,7 @@ def is_int(n):
     """
     return isinstance(n, int)
 
+
 def is_int_set(s: set[int]):
     """
     Check element in set is int

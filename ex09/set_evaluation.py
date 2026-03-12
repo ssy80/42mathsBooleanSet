@@ -1,35 +1,39 @@
 from truth_table import build_tree
 from node import Node
+import string
 
 
-def is_int_set(sets: list[set]) -> bool:
+def is_int_set(sets: list[set[int]]) -> None:
     """
-    Check item in sets are int value
+    Check every item is a set of integers.
     """
-    result = all(isinstance(x, int) for s in sets for x in s)
-    if not result:
-        raise TypeError("number in set must be integer")
+    if not all(isinstance(s, set) for s in sets):
+        raise TypeError("each item in sets must be a set")
+    if not all(isinstance(x, int) for s in sets for x in s):
+        raise TypeError("number in set must be int")
 
 
-def extract_variables_non_sort(formula: str)-> list[str]:
+def match_symbol_to_sets(sets: list[set[int]]) -> dict[str, set[int]]:
     """
-    Extract unique variables name(symbol) from formula non sorted
+    Return a dict matching A, B, C... to the input sets by position.
     """
-    variable_set = []
-
-    for c in formula:
-        if c.isupper() and c not in variable_set:
-            variable_set.append(c)
-
-    return variable_set
-
-
-def  match_symbol_to_sets(variables: list[str], sets: list[set[int]])-> dict:
-    """
-    Return a dict matching symbols to input sets
-    """
-    result_dict = {a: b for a,b in zip(variables, sets)}
+    symbols = string.ascii_uppercase
+    result_dict = {symbols[i]: current_set for i, current_set in enumerate(sets)}
     return result_dict
+
+
+def validate_variable_range(formula: str, sets: list[set[int]]) -> None:
+    """
+    Ensure the formula only uses variables from A up to the number of provided sets.
+    """
+    variables = sorted({c for c in formula if c.isupper()})
+    if not variables:
+        raise ValueError("invalid formula")
+
+    highest_variable = max(variables)
+    required_set_count = string.ascii_uppercase.index(highest_variable) + 1
+    if len(sets) != required_set_count:
+        raise ValueError("invalid list of sets")
 
 
 '''
@@ -83,10 +87,8 @@ def eval_set(formula: str, sets: list[set[int]]) -> set[int]:
     Evaluate tree
     """
     is_int_set(sets)
-    variables = extract_variables_non_sort(formula)
-    if len(sets) != len(variables):
-        raise ValueError("invalid list of sets")
-    symbol_set_dict = match_symbol_to_sets(variables, sets)
+    validate_variable_range(formula, sets)
+    symbol_set_dict = match_symbol_to_sets(sets)
     universe_set = set().union(*sets) # create a universe set from union of the list of sets - (empty set) u ({1,2,3}) u ({3,4,5})
 
     root = build_tree(formula)
@@ -103,7 +105,7 @@ def main():
         print(eval_set("AB|", [{0, 1, 2},{3, 4, 5}])) # [0, 1, 2, 3, 4, 5]
         print(eval_set("A!", [{0, 1, 2}])) # []
         
-        print(eval_set("CBBD!|&&", [{0, 1, 200}, {0, 1, 0}, {0, 1, 2}]))
+        print(eval_set("CBBD!|&&", [{0, 1, 200}, {0, 1, 0}, {0, 1, 2}])) #error
 
     except Exception as e:
         print(f"Error: {str(e)}")
