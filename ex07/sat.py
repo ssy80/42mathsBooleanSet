@@ -37,7 +37,10 @@ def main():
         print(sat("AB&"))  #true
         print(sat("AA!&")) #false
         print(sat("AA^"))  #false
+
+        print(sat("AA@"))  #error
         
+
     except Exception as e:
         print(f"Error: {str(e)}")
 

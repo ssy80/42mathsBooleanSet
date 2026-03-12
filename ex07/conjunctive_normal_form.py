@@ -74,10 +74,10 @@ def main():
         print(conjunctive_normal_form("AB&!"))    #A!B!|
         print(conjunctive_normal_form("AB|!"))    #A!B!&
         print(conjunctive_normal_form("AB|C&"))   #AB|C&
-        print(conjunctive_normal_form("AB|C|D|")) #ABCD|||
-        print(conjunctive_normal_form("AB&C&D&")) #ABCD&&&
-        print(conjunctive_normal_form("AB&!C!|")) #A!B!C!||
-        print(conjunctive_normal_form("AB|!C!&")) #A!B!C!&&
+        print(conjunctive_normal_form("AB|C|D|")) #ABCD|||, AB|C|D|
+        print(conjunctive_normal_form("AB&C&D&")) #ABCD&&&, AB&C&D&
+        print(conjunctive_normal_form("AB&!C!|")) #A!B!C!||, A!B!|C!|
+        print(conjunctive_normal_form("AB|!C!&")) #A!B!C!&&, A!B!&C!&
 
         print(conjunctive_normal_form("ABCD&|&")) #ABC|BD|&&
 

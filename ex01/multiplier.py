@@ -1,6 +1,4 @@
-from natural_number_error import NaturalNumberError
 from utils import is_natural, is_u32
-from adder import adder
 
 
 '''

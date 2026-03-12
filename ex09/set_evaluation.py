@@ -1,23 +1,19 @@
-from truth_table import build_tree
+from truth_table import build_tree, extract_variables
 from node import Node
 import string
-
-
-def is_int_set(sets: list[set[int]]) -> None:
-    """
-    Check every item is a set of integers.
-    """
-    if not all(isinstance(s, set) for s in sets):
-        raise TypeError("each item in sets must be a set")
-    if not all(isinstance(x, int) for s in sets for x in s):
-        raise TypeError("number in set must be int")
+from utils import is_int_sets
 
 
 def match_symbol_to_sets(sets: list[set[int]]) -> dict[str, set[int]]:
     """
     Return a dict matching A, B, C... to the input sets by position.
+    e.g {
+        'A': {1,2},
+        'B': {3,4},
+        'C': {5,6}
+        }
     """
-    symbols = string.ascii_uppercase
+    symbols = string.ascii_uppercase # "ABCDEF...Z"
     result_dict = {symbols[i]: current_set for i, current_set in enumerate(sets)}
     return result_dict
 
@@ -26,12 +22,13 @@ def validate_variable_range(formula: str, sets: list[set[int]]) -> None:
     """
     Ensure the formula only uses variables from A up to the number of provided sets.
     """
-    variables = sorted({c for c in formula if c.isupper()})
+    #variables = sorted({c for c in formula if c.isupper()})
+    variables = extract_variables(formula)
     if not variables:
         raise ValueError("invalid formula")
 
-    highest_variable = max(variables)
-    required_set_count = string.ascii_uppercase.index(highest_variable) + 1
+    max_variable = max(variables)
+    required_set_count = string.ascii_uppercase.index(max_variable) + 1
     if len(sets) != required_set_count:
         raise ValueError("invalid list of sets")
 
@@ -61,7 +58,7 @@ def evaluate_tree(node: Node, values: dict[str, set[int]], universe: set[int]) -
     left_val = evaluate_tree(node.left, values, universe)
     right_val = evaluate_tree(node.right, values, universe)
 
-    if node.value == "&":                       # intersection - (A n B) elements in A or B but not in both, intercepted part
+    if node.value == "&":                       # intersection - (A ∩ B), elements common to both sets, intercepted part
         return left_val & right_val            
         
     if node.value == "|":                       # union - (A u B) elements that are in A or in B or in both, all of A,B
@@ -86,7 +83,7 @@ def eval_set(formula: str, sets: list[set[int]]) -> set[int]:
     Build tree
     Evaluate tree
     """
-    is_int_set(sets)
+    is_int_sets(sets)
     validate_variable_range(formula, sets)
     symbol_set_dict = match_symbol_to_sets(sets)
     universe_set = set().union(*sets) # create a universe set from union of the list of sets - (empty set) u ({1,2,3}) u ({3,4,5})

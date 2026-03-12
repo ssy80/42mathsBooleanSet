@@ -11,7 +11,6 @@ def powerset(s: set[int]) -> list[set[int]]:
     is_int_set(s)
     return [set(c) for r in range(len(s)+1) for c in combinations(s,r)]
 
-
 '''
 same as above list comprehension [set(c) for r in range(len(s)+1) for c in combinations(s,r)]
 result = []
@@ -30,9 +29,10 @@ def main():
         print(powerset({1, 2, 3}))
         print(powerset({1, 2, 3, 4}))
         print(powerset({0}))
-        print(powerset({}))
+        print(powerset(set()))          # set() = empty set
 
-        print(powerset({"a"}))
+        print(powerset({"a"})) #error
+        #print(powerset({1.99})) #error
 
         
     except Exception as e:

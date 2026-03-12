@@ -29,7 +29,7 @@ def main():
         print(adder(887, 1)) #888
         print(adder(0, 1)) #1
 
-        #print(adder(-1, -9)) # error
+        print(adder(-1, -9)) # error
         #print(adder(1.1, 8.9)) # error
 
     except Exception as e:

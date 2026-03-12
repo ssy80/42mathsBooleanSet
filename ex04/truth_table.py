@@ -124,7 +124,7 @@ def main():
 
         print_truth_table("AB&C|")
         
-        print_truth_table("AB^C|")
+        #print_truth_table("AB^C|")
         
         
     except Exception as e:
